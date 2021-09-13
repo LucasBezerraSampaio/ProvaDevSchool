@@ -137,14 +137,18 @@ const Home = styled.div`
     display: flex;
     flex-direction: row;
   
-    align-items: center;
-  
+    
+
+    margin-top: .5em;
     font-family: "Roboto";
     color: #615858;
     font-weight: 500;
     font-size: 1.12em;
   }
   
+  .classebotao {
+    padding: .6em;
+  }
   .input-item3 input {
     width: 41em;
     border: 1px solid #a8a8a8;
@@ -286,6 +290,7 @@ th {
 } 
 .table-user {
    border-collapse: collapse;
+   width: auto;
 }
 .int {
    background-color: #fff;

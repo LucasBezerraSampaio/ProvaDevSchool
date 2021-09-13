@@ -5,7 +5,7 @@ export default function BarraEsquerda() {
         <LeftBar>
             <header class="header-left-box">
                 <div class="svg-cabecalho-left-box"> <img src="/assets/svgs/logo.svg" alt="" /></div>
-                <div class="devSchool"> <span>Dev</span> School</div>
+                <div class="devSchool"> <span>Dev</span> Store</div>
             </header>
             <div class="black-box"></div>
             <div class="left-box-management">

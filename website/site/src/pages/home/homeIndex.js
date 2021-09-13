@@ -3,7 +3,7 @@
 
 import BarraLateral from '../../components/left-barcomponent';
 import Cabecalho from '../../components/headercomponent'
-import { ComponentInput } from '../../components/inputcomponent/styled';
+
 import { Home } from './styled';
 import { useEffect, useState, useRef } from 'react';
 import Api from '../../service/api';
@@ -21,13 +21,21 @@ const api = new Api();
 
 
 export default function HomePage() {
-    const [nomeAluno, setNomeAluno] = useState('');
-    const [numeroChamada, setNumeroChamada] = useState('');
-    const [curso, setCurso] = useState('');
-    const [turma, setTurma] = useState('');
+    const [nomeProduto, setNomeProduto] = useState('');
+    const [categoria, setCategoria] = useState('');
+    const [precoDe, setPrecoDe] = useState('');
+    const [precoPor, setPrecoPor] = useState('');
+    const [avaliacao, setAvaliacao] = useState('');
+    const [descricao, setDescricao] = useState('');
+    const [estoque, setEstoque] = useState('');
+    const [imagem, setImagem] = useState('');
+    
+  
+    const barraCarregamento= useRef(null);
     const [alterando, setAlterando] = useState(0);
-    const [todosAlunos, setTodosAlunos] = useState([]);
-    const barraCarregamento = useRef(null);
+    const [todosProdutos, setTodosProdutos] = useState([]);
+
+
 
     const verificarErro = (resp) => {
         if (!resp.situacao) 
@@ -37,73 +45,31 @@ export default function HomePage() {
         
     }
 
-    const carregarCadastrado = async () => {
+    useEffect(() => {
+        getProdutos();
+    }, [])
+
+    const getProdutos = async () => {
         barraCarregamento.current.continuousStart();
-        let i = await api.listarCadastrados();
-        setTodosAlunos(i);
         
+        let x = await api.listarProdutos()
+        setTodosProdutos(x)
+
         barraCarregamento.current.complete();
     }
 
-    const limparVariavel = () => {
-        setAlterando(0);
-        setCurso('');
-        setNomeAluno('');
-        setNumeroChamada('')
-        setTurma('');
-    }
+    const deleteProdutos = async (info) => {
 
-    useEffect(() => {
-        carregarCadastrado();
-    }, [])
-
-    const cadastrarAluno = async (info) => {
-
-        
-
-        if (numeroChamada < 0)
-            return toast.error('Campo do número não pode ser menor que 0')
-        
-        
-        if (nomeAluno === '')
-            return toast.error('O campo do nome não pode ser nulo')
-        
-        if (turma === '')
-            return toast.error('O campo da turma não pode ser nulo')
-        
-        if (curso === '')
-            return toast.error('O campo do curso não pode ser nulo')
-
-        if (alterando === 0) {
-            let oi = await api.cadastrarAluno(nomeAluno, numeroChamada, curso, turma);
-            if (!verificarErro(oi))
-                return
-            toast.success(`Aluno ${nomeAluno} cadastrado!`);
-        } else {
-           
-            let r = await api.alterarInfo(alterando, nomeAluno, numeroChamada, curso, turma);
-            if (!verificarErro(r))
-                return
-            toast.success(`Aluno ${nomeAluno} alterado !`)
-        }
-
-        carregarCadastrado();
-
-        limparVariavel(alterando, nomeAluno, numeroChamada, curso, turma)
-    }
-    
-    const remover = async (info)  => {
-       
         confirmAlert({
-            title: 'Deletar Aluno',
-            message: `Certeza que deseja deletar o aluno ${info.nm_aluno} ?`,
+            title: 'Remover Produto',
+            message: `Certeza que deseja remover o produto ${info.nm_produto}?`,
             buttons: [
                 {
                     label: 'sim',
                     onClick: async () => {
-                        let r = await api.removerAluno(info.id_matricula);
-                        toast.success(`Aluno ${info.nm_aluno} removido com sucesso!`)
-                        carregarCadastrado();
+                        let x = await api.removerProduto(info.id_produto);
+                        toast.success(`Produto ${info.nm_produto} removido!`);
+                        getProdutos();
                     }
                 },
                 {
@@ -111,24 +77,101 @@ export default function HomePage() {
                 }
             ]
         });
-                   
-       
-         
+
+        
     }
 
-    const alterarAluno = async (info) => {
-        setAlterando(info.id_matricula);
-        setNomeAluno(info.nm_aluno);
-        setNumeroChamada(info.nr_chamada);
-        setCurso(info.nm_curso);
-        setTurma(info.nm_turma);
+    const postProduto = async () => {
+        
+        if (nomeProduto === '')
+            return toast.error('O campo do nome do produto não pode ser nulo')
+        if (categoria === '')
+            return toast.error('O campo da categoria do produto não pode ser nulo')
+        if (precoDe === '')
+            return toast.error('O campo do preço do produto não pode ser nulo')
+        if (precoPor === '')
+            return toast.error('O campo do preço do produto não pode ser nulo')
+        if (avaliacao === '')
+            return toast.error('O campo da avaliação do produto não pode ser nulo')
+        if (descricao === '')
+            return toast.error('O campo da descrição do produto não pode ser nulo')
+        if (estoque === '')
+            return toast.error('O campo do estoque do produto não pode ser nulo')
+        if (imagem === '')
+            return toast.error('O campo da imagem do produto não pode ser nulo')
+        if (precoDe < 0)
+            return toast.error('O preço do produto não pode ser negativo')
+        if (precoPor < 0)
+            return toast.error('O preço do produto não pode ser negativo')
+        if (estoque < 0)
+            return toast.error('O número do estoque não pode ser negativo')
+        if (avaliacao < 0)
+            return toast.error('O número da avaliação não pode ser negativo')
+        
+
+        
+        if (alterando > 0) {
+            let r = await api.alterarProduto(alterando, nomeProduto, categoria, precoDe, precoPor, avaliacao, descricao, estoque, imagem);
+            if (r.erro)
+                return toast.error(r.erro)
+
+            toast.success(`Produto ${nomeProduto} alterado!`)
+           
+            getProdutos();
+            limparVariavel();
+        } else {
+           
+            const y = await api.cadastrarProduto(nomeProduto, categoria, precoDe, precoPor, avaliacao, descricao, estoque, imagem);
+            if (y.erro)
+                return toast.error("Nome do produto já existe")
+            if (y.error)
+                return toast.error(y.error)
+           
+            toast.success(`Produto ${nomeProduto} Adicionado`);
+
+            getProdutos();
+            limparVariavel();
+        }
+        
+        
+       
+       
+    }
+
+
+    const putProduto = async (info)  => {
+        setAlterando(info.id_produto);
+        setNomeProduto(info.nm_produto);
+        setCategoria(info.ds_categoria);
+        setPrecoDe(info.vl_preco_de);
+        setPrecoPor(info.vl_preco_por);
+        setAvaliacao(info.vl_avaliacao);
+        setDescricao(info.ds_produto);
+        setEstoque(info.qtd_estoque);
+        setImagem(info.img_produto);
+
+       console.log(info.ds_descricao)
+
+    }
+   
+    const limparVariavel = () => {
+        setAlterando(0);
+        setNomeProduto('');
+        setCategoria('');
+        setPrecoDe('')
+        setPrecoPor('');
+        setAvaliacao('');
+        setDescricao('');
+        setEstoque('');
+        setImagem('');
+
     }
 
     return (
         <Home>
             <ToastContainer />
             <BarraLateral />
-            <LoadingBar color="#986CDF" ref={ barraCarregamento } />
+            <LoadingBar color="#119FDC" ref={ barraCarregamento } />
             <div class="right-box">
                 <Cabecalho />
                 <div class="bottom-bar-right-header"></div>
@@ -136,31 +179,31 @@ export default function HomePage() {
                 <div class="cadastrar-produto">
                     <div class="txt-produto">
                         <div class="barra-produto"></div>
-                        <div class="oie">Novo Produto</div>
+                            <div class="oie">{ alterando > 0 ?`Alterando Produto ${nomeProduto}` :"Novo Produto" }</div>
                     </div>
 
                     <div class="box-inputs">
                         <div class="sub-box-inputs">
                             <div class="input-item">
-                                Nome: <input type="text" /> 
+                                Nome: <input type="text"    value={nomeProduto} onChange={ e => setNomeProduto(e.target.value)}/>
                             </div>
                             <div class="input-item">
-                                Cartegoria: <input type="text" /> 
+                                Cartegoria: <input type="text"  value={categoria} onChange={ e => setCategoria(e.target.value)}/> 
                             </div>
                             <div class="input-item">
-                                Avaliação: <input type="text" /> 
+                                Avaliação: <input type="text"   value={avaliacao} onChange={ e => setAvaliacao(e.target.value)}/> 
                             </div>
                         </div>
 
                         <div class="sub-box-inputs">
                             <div class="input-item">
-                                Preço DE: <input type="text" /> 
+                                Preço DE: <input type="text"    value={precoDe} onChange={ e => setPrecoDe(e.target.value)} /> 
                             </div>
                             <div class="input-item">
-                                Preço POR: <input type="text" /> 
+                                Preço POR: <input type="text"   value={precoPor} onChange={ e => setPrecoPor(e.target.value)}/> 
                             </div>
                             <div class="input-item">
-                                Estoque: <input type="text" /> 
+                                Estoque: <input type="text"     value={estoque} onChange={ e => setEstoque(e.target.value)}/> 
                             </div>
  
                         </div>
@@ -168,13 +211,13 @@ export default function HomePage() {
                     <div class="box-inputs2">
                     <div class="sub-box-inputs3">
                         <div class="input-item3">
-                            Link imagem: <input type="text" /> 
+                            Link imagem: <input type="text" value={imagem} onChange={ e => setImagem(e.target.value)}/> 
                         </div>
                         <div class="txt-item3">
-                            Descrição: <textarea />
+                            <p>Descrição:</p> <textarea value={descricao} onChange={ e => setDescricao(e.target.value)}/>
                         </div>
                     </div>
-                    <button>Cadastrar</button>
+                    <button onClick={postProduto}>{alterando > 0 ?"Alterar" :"Cadastrar" }</button>
                     </div>
 
 
@@ -182,36 +225,38 @@ export default function HomePage() {
                     <div class="matriculed-stutents">
                     <div class="text-matriculed-students">
                         <div class="bar-matriculed"></div>
-                        <div class="text-matriculed">Alunos Matriculados</div>
+                        <div class="text-matriculed">Produtos Cadastrados</div>
                     </div>
 
                     <table class ="table-user">
                         <thead>
-                            <tr>
+                                <tr>
+                                <th></th>
                                 <th > ID </th>
-                                <th> Nome </th>
-                                <th> Chamada </th>
-                                <th> Curso </th>
-                                <th> Turma </th>
+                                <th> Produto </th>
+                                <th> Categoria </th>
+                                <th> Preço </th>
+                                <th> Estoque </th>
                                 <th  className="classebotao"> </th>
-                                <th  className="classebotao"> </th>
+                                <th className="classebotao"> </th>
+                                
                             </tr>
                         </thead>
-                        <tbody>
-                            {todosAlunos.map((info, linha) => 
+                        <tbody >
+                            {todosProdutos.map((info, linha) => 
                                 <tr className={linha % 2 === 0 ?`linha1` :`linha2`}>
-                                    <td> {info.id_matricula} </td>
-                                    <td title={info.nm_aluno}> {info.nm_aluno != null && info.nm_aluno.length >= 25
-                                                        ?info.nm_aluno.substr(0, 25) + "..."
-                                                        :info.nm_aluno}
-                                    </td>
-                                    <td> {info.nr_chamada} </td>
-                                    <td> {info.nm_curso} </td>
-                                    <td> {info.nm_turma} </td>
-                                    <td className="classebotao"> <button onClick={() => alterarAluno(info)} style={{cursor: 'pointer'}}> <img src="/assets/svgs/editiButton.svg" alt="" /> </button> </td>
-                                    <td className="classebotao"> <button onClick={() => remover(info)} style={{cursor: 'pointer'}}> <img src="/assets/svgs/deleteButton.svg" alt="" /> </button> </td>
-                                </tr>
-                            )}
+                                    <td> <img src={info.img_produto} alt="" style={ {width: "55px", height: "55px", borderRadius: ".5em" } }/> </td>
+                                    <td> {info.id_produto }</td>
+                                    <td title={info.nm_produto}> {info.nm_produto != null && info.nm_produto.length >= 20
+                                                                ? info.nm_produto.substr(0, 20) + "..."
+                                                                :info.nm_produto} </td>
+                                    <td> {info.ds_categoria} </td>
+                                    <td> {info.vl_preco_por} </td>
+                                    <td> {info.qtd_estoque}</td>
+                                    <td className="classebotao"> <button onClick={() => putProduto(info)} style={{cursor: "pointer"}}> <img src="/assets/svgs/editiButton.svg" alt="" /> </button> </td>
+                                    <td className="classebotao"> <button onClick={() => deleteProdutos(info)} style={{cursor: "pointer"}}> <img src="/assets/svgs/deleteButton.svg" alt="" /> </button> </td>
+                                </tr>     
+                           )}  
                         </tbody>
                     </table>
                 </div>

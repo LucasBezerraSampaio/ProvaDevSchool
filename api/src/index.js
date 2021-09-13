@@ -19,67 +19,79 @@ app.get('/produto', async (req, resp) => {
 
 app.post('/produto', async (req, resp) => {
     try {
+        
         let requerimento = req.body;
+        let nome = await db.tb_produto.findOne({ where: { nm_produto: requerimento.nomeProduto } })
+        if (nome != null)
+            return resp.send({ erro: "Nome do produto já existe!" })
+       
 
-        let cadastroALuno = await db.tb_matricula.create({
+        let cadastroALuno = await db.tb_produto.create({
 
             nm_produto: requerimento.nomeProduto,
             ds_categoria: requerimento.categoria,
             vl_preco_de: requerimento.precoDe,
-            vl_preco_por: requerimento.precoPor,
+            vl_preco_por:  requerimento.precoPor,
             vl_avaliacao: requerimento.avaliacao,
             ds_produto: requerimento.descricao,
             qtd_estoque: requerimento.estoque,
-            img_produto: requerimento.imagem,
+            img_produto: requerimento.img,
             bt_ativo: true,
             dt_inclusao: new Date()
 
         })
-        resp.send({status: "Post da matricula realizado com sucesso!"})
-    } catch (error) {
-        resp.send(toString(error))
+        resp.send(cadastroALuno) 
+
+        
+    } catch (erro) {
+        return resp.send({ error: erro.toString() })
     }
 });
 
 app.delete('/produto', async (req, resp) => {
     try {
-        let id = req.query.idMatricula;
-        let deletar = await db.tb_matricula.destroy({ where: { id_produto: id } } );
-        resp.sendStatus(200);
+        let id = req.query.idProduto;
+        let deletar = await db.tb_produto.destroy({ where: { id_produto: id } } );
+        resp.send({Status: "Delete realizado com sucesso!"});
     } catch (error) {
         resp.send(error.toString())
     }
 });
 
 
+app.put('/produto', async (req, resp) => {
 
-app.put('/matricula', async (req, resp) => {
     try {
+        let id = req.query.idProduto;
         let requerimento = req.body;
-        let id = req.query.idMatricula;
-        let cadastroALuno = await db.tb_matricula.update({
 
-            nm_produto: requerimento.nomeProduto,
-            ds_categoria: requerimento.categoria,
-            vl_preco_de: requerimento.precoDe,
-            vl_preco_por: requerimento.precoPor,
-            vl_avaliacao: requerimento.avaliacao,
-            ds_produto: requerimento.descricao,
-            qtd_estoque: requerimento.estoque,
-            img_produto: requerimento.imagem,
-            bt_ativo: true,
-            dt_inclusao: new Date()
-        },
-        {
-            where: { id_produto: id }
-        })
-        
-        resp.sendStatus(200)
-    } catch (error) {
-        resp.send(toString(error))
+        let r = await db.tb_produto.update(
+
+            {
+                nm_produto: requerimento.nomeProduto,
+                ds_categoria: requerimento.categoria,
+                vl_preco_de: requerimento.precoDe,
+                vl_preco_por:  requerimento.precoPor,
+                vl_avaliacao: requerimento.avaliacao,
+                ds_produto: requerimento.descricao,
+                qtd_estoque: requerimento.estoque,
+                img_produto: requerimento.imagem,
+                bt_ativo: true,
+                dt_inclusao: new Date()
+            },
+            {
+                where: { id_produto: id }
+            });
+
+        resp.send({Status: "Put realizado com sucesso!"});
+
+
+    } catch (erro) {
+        resp.send({erro: 'Não pode conter caracteres os campos: Avaliação, PrecoDe, PrecoPor && Estoque'});
     }
-});
 
+
+})
 
 
 app.listen(process.env.PORT,

@@ -5,30 +5,44 @@ const api = axios.create({
 
 export default class Api {
 
-    async cadastrarAluno(nomeAluno, numeroChamada, curso, turma) {
+    async cadastrarProduto(nomeProduto, categoria, precoDe, precoPor, avaliacao, descricao, estoque, imagem) {
         let cadastroJson = {
-            nome: nomeAluno,
-            numero: numeroChamada,
-            curso: curso,
-            turma: turma
+            nomeProduto: nomeProduto,
+            categoria: categoria,
+            precoDe: precoDe,
+            precoPor: precoPor,
+            avaliacao: avaliacao,
+            descricao: descricao,
+            estoque: estoque,
+            imagem: imagem
         }
 
-        let r = await api.post(`/matricula`, cadastroJson );
+        let r = await api.post(`/produto`, cadastroJson );
         return r.data
     }
 
-    async listarCadastrados() {
-        let listar = await api.get(`/matricula`);
+    async listarProdutos() {
+        let listar = await api.get(`/produto`);
         return listar.data;
     }
 
-    async removerAluno(id) {
-        let remover = await api.delete(`/matricula?idMatricula=${id}`);
+    async removerProduto(id) {
+        let remover = await api.delete(`/produto?idProduto=${id}`);
         return remover.data;
     }
 
-    async alterarInfo(id, nome, chamada, curso, turma) {
-        let alterar = await api.put(`/matricula?idMatricula=${id}`, { nome, chamada, curso, turma });
+    async alterarProduto(id, nomeProduto, categoria, precoDe, precoPor, avaliacao, descricao, estoque, imagem) {
+        let alterar = await api.put(`/produto?idProduto=${id}`, {
+            nomeProduto: nomeProduto,
+            categoria: categoria,
+            precoDe: precoDe,
+            precoPor: precoPor,
+            avaliacao: avaliacao,
+            descricao: descricao,
+            estoque: estoque,
+            imagem: imagem
+        });
+        //console.log(alterar)
         return alterar.data;
     }
 }
