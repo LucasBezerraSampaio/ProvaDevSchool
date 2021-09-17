@@ -2,9 +2,11 @@ import { HeaderRight } from "./style";
 
 
 
-export default function Header() {
 
-    
+
+export default function Header(props) {
+   
+  
 
     return (
         <HeaderRight>
@@ -13,8 +15,8 @@ export default function Header() {
                     <div>Olá, <span>Lucas Bezerra Sampaio lindo maravilhoso ❤️❤️😍😍</span></div>
                 </div>
                 <div class="header-buttons">
-                <button> <img src="/assets/svgs/Vector.svg" alt=""/> </button>
-                    <button> <img src="/assets/svgs/Group 104.svg" alt="" /> </button>
+                <button> <img src="/assets/svgs/Vector.svg" alt="" onClick={props.recarregar}/> </button>
+                <button> <img src="/assets/svgs/Group 104.svg" alt="" /> </button>
                 </div>
         </HeaderRight>
     )

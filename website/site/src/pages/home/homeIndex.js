@@ -83,37 +83,13 @@ export default function HomePage() {
 
     const postProduto = async () => {
         
-        if (nomeProduto === '')
-            return toast.error('O campo do nome do produto não pode ser nulo')
-        if (categoria === '')
-            return toast.error('O campo da categoria do produto não pode ser nulo')
-        if (precoDe === '')
-            return toast.error('O campo do preço do produto não pode ser nulo')
-        if (precoPor === '')
-            return toast.error('O campo do preço do produto não pode ser nulo')
-        if (avaliacao === '')
-            return toast.error('O campo da avaliação do produto não pode ser nulo')
-        if (descricao === '')
-            return toast.error('O campo da descrição do produto não pode ser nulo')
-        if (estoque === '')
-            return toast.error('O campo do estoque do produto não pode ser nulo')
-        if (imagem === '')
-            return toast.error('O campo da imagem do produto não pode ser nulo')
-        if (precoDe < 0)
-            return toast.error('O preço do produto não pode ser negativo')
-        if (precoPor < 0)
-            return toast.error('O preço do produto não pode ser negativo')
-        if (estoque < 0)
-            return toast.error('O número do estoque não pode ser negativo')
-        if (avaliacao < 0)
-            return toast.error('O número da avaliação não pode ser negativo')
-        
-
         
         if (alterando > 0) {
             let r = await api.alterarProduto(alterando, nomeProduto, categoria, precoDe, precoPor, avaliacao, descricao, estoque, imagem);
             if (r.erro)
-                return toast.error(r.erro)
+                return toast.error(`Os campos Avaliação, PrecoDe, PrecoPor e Estoque não podem ser texto`)
+            if (r.Status)
+                return toast.error(`${r.Status}`)
 
             toast.success(`Produto ${nomeProduto} alterado!`)
            
@@ -125,7 +101,9 @@ export default function HomePage() {
             if (y.erro)
                 return toast.error("Nome do produto já existe")
             if (y.error)
-                return toast.error(y.error)
+                return toast.error(`${y.error}`)
+            if (y.Status)
+                return toast.error(`${y.Status}`)
            
             toast.success(`Produto ${nomeProduto} Adicionado`);
 
@@ -173,7 +151,7 @@ export default function HomePage() {
             <BarraLateral />
             <LoadingBar color="#119FDC" ref={ barraCarregamento } />
             <div class="right-box">
-                <Cabecalho />
+                <Cabecalho recarregar={getProdutos}/>
                 <div class="bottom-bar-right-header"></div>
                 <div class="body-right-box">
                 <div class="cadastrar-produto">
@@ -188,7 +166,7 @@ export default function HomePage() {
                                 Nome: <input type="text"    value={nomeProduto} onChange={ e => setNomeProduto(e.target.value)}/>
                             </div>
                             <div class="input-item">
-                                Cartegoria: <input type="text"  value={categoria} onChange={ e => setCategoria(e.target.value)}/> 
+                                Categoria: <input type="text"  value={categoria} onChange={ e => setCategoria(e.target.value)}/> 
                             </div>
                             <div class="input-item">
                                 Avaliação: <input type="text"   value={avaliacao} onChange={ e => setAvaliacao(e.target.value)}/> 
